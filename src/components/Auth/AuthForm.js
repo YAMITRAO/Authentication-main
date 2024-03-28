@@ -1,12 +1,15 @@
 import { useState, useRef } from 'react';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 import classes from './AuthForm.module.css';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isSignUpOk, setIsSignUpOk] = useState(false);
+  // const [homePage, setHomePage] = useState(false);
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
+  const hist = useHistory();
 
 
   const switchAuthModeHandler = () => {
@@ -21,6 +24,32 @@ const AuthForm = () => {
     console.log(entredEmail, entredPassword);
 
     if(isLogin){
+      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCTtOX2Di6R4YAhCh2Lnm63plJ7z5rYEr8', {
+        method:"POST",
+        body: JSON.stringify( {
+          email: entredEmail,
+          password: entredPassword,
+          returnSecureToken: true,
+        }),
+        headers:{
+          'Content-type':"application/json"
+        }
+      }).then( res => {
+        if(res.ok){
+          
+          hist.push("/")
+          res.json().then( data => console.log(data.localId));
+        }else{
+          res.json().then( data => {
+            let errorMsg = "Login Failed";
+            if(data && data.error && data.error.message){
+              errorMsg = data.error.message;
+            }
+            alert(errorMsg);
+          })
+        }
+        
+      })
 
     }else{
       setIsSignUpOk(true);
@@ -36,12 +65,12 @@ const AuthForm = () => {
           'Content-type':"application/json"
         }
       }).then( res => {
-        
         if(res.ok){
           setIsSignUpOk(false);
+          return res.json().then( data => console.log(data));
           
         }else{
-          return res.json() .then ( data => {
+          return res.json().then ( data => {
             let errorMsg = 'Auth Failed!!!'
             setIsSignUpOk(false);
             if(data && data.error && data.error.message){
@@ -56,6 +85,11 @@ const AuthForm = () => {
 
 
   }
+
+
+  
+   
+    
 
   return (
     <section className={classes.auth}>
