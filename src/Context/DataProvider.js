@@ -5,6 +5,7 @@ const reducer = (state, action) => {
     if(action.type === "LOGIN_DONE"){
         state.isAuth = true;
         localStorage.setItem("userdetails", JSON.stringify(state));
+
         return {
             ...state
         };
@@ -32,6 +33,10 @@ const DataProvider = (props) => {
 
   const changeAuthState = (data) =>{
     dispatchFun(data);
+    setTimeout( () => {
+      console.log("Auto logout is clicked");
+      dispatchFun({type:"LOG_OUT"});
+    }, 300000);
   }
   const authDetailshandler = ( data) => {
     dispatchFun(data);
